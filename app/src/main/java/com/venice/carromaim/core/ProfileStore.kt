@@ -75,6 +75,9 @@ object ProfileStore {
         o.put("pocketCapture", p.pocketCapture.toDouble())
         o.put("baselineY", p.baselineY.toDouble())
         o.put("slideMin", p.slideMin.toDouble()); o.put("slideMax", p.slideMax.toDouble())
+        o.put("pocketX", JSONArray(p.pocketX.map { it.toDouble() }))
+        o.put("pocketY", JSONArray(p.pocketY.map { it.toDouble() }))
+        o.put("ignore", JSONArray(p.ignore.map { it.toDouble() }))
         o.put("colors", JSONArray(p.colors.toList()))
         o.put("tol", p.tol.toDouble())
         o.put("wallRest", p.wallRest.toDouble()); o.put("coinRest", p.coinRest.toDouble())
@@ -93,6 +96,14 @@ object ProfileStore {
         p.pocketR = o.optDouble("pocketR", p.pocketR.toDouble()).toFloat()
         p.pocketInset = o.optDouble("pocketInset", p.pocketInset.toDouble()).toFloat()
         p.pocketCapture = o.optDouble("pocketCapture", p.pocketCapture.toDouble()).toFloat()
+        p.resetPockets()
+        val px = o.optJSONArray("pocketX"); val py = o.optJSONArray("pocketY")
+        if (px != null && py != null && px.length() == 4 && py.length() == 4) {
+            p.pocketX = FloatArray(4) { px.getDouble(it).toFloat() }
+            p.pocketY = FloatArray(4) { py.getDouble(it).toFloat() }
+        }
+        val ig = o.optJSONArray("ignore")
+        if (ig != null) p.ignore = FloatArray(ig.length()) { ig.getDouble(it).toFloat() }
         p.baselineY = o.optDouble("baselineY", p.baselineY.toDouble()).toFloat()
         p.slideMin = o.optDouble("slideMin", p.slideMin.toDouble()).toFloat()
         p.slideMax = o.optDouble("slideMax", p.slideMax.toDouble()).toFloat()

@@ -15,7 +15,7 @@ class TuneActivity : Activity() {
         val (sv, col) = Ui.page(this)
         setContentView(sv)
         col.addView(Ui.text(this, "Sizes, power & physics", 24f, Ui.ACCENT, true))
-        col.addView(Ui.text(this, "Profile: ${p.name}.  All sizes are fractions of the board side (board = 1.0). The calibration screen already measured these for you; fix them here only if the Test view showed a wrong circle. After changing, tap Rescan on the floating bar.", 13f, Ui.DIM))
+        col.addView(Ui.text(this, "Profile: ${p.name}.  All sizes are fractions of the board side (board = 1.0). The calibration screen already measured these (every pocket was marked individually); fix them here only if the Test view showed a wrong circle. After changing, tap Rescan on the floating bar.", 13f, Ui.DIM))
 
         fun sec(t: String) = Ui.add(col, Ui.text(this, t, 12f, Ui.ACCENT, true), 28f, this)
         fun sl(label: String, hint: String, min: Float, max: Float, get: () -> Float, set: (Float) -> Unit, dec: Int = 3) =
@@ -25,7 +25,6 @@ class TuneActivity : Activity() {
         sl("Coin radius", "Radius of one coin. Detection and the physics both use it.", 0.012f, 0.040f, { p.coinR }, { p.coinR = it }, 4)
         sl("Striker radius", "Usually a bit bigger than a coin. Sets the ghost circle.", 0.015f, 0.050f, { p.strikerR }, { p.strikerR = it }, 4)
         sl("Pocket radius", "Visible opening of a pocket.", 0.015f, 0.060f, { p.pocketR }, { p.pocketR = it }, 4)
-        sl("Pocket centre inset", "Distance of the pocket centre from the board corner (each axis).", 0.005f, 0.080f, { p.pocketInset }, { p.pocketInset = it }, 4)
         sl("Pocket forgiveness", "1.00 = a coin drops when its centre is inside the opening. Lower = stricter, higher = coins drop easier.", 0.60f, 1.30f, { p.pocketCapture }, { p.pocketCapture = it }, 2)
 
         sec("STRIKER")

@@ -32,6 +32,10 @@ class CalView(ctx: Context, val bmp: Bitmap) : View(ctx) {
     var strikerPx = 0f
     var pocketCentres: List<FloatArray> = emptyList()
     var pocketPx = 0f
+    var ignoredPts: List<FloatArray> = emptyList()
+    var onTap: ((Float, Float) -> Unit)? = null
+    private var downX = 0f
+    private var downY = 0f
 
     private val density = ctx.resources.displayMetrics.density
     private var s = 1f
@@ -141,6 +145,12 @@ class CalView(ctx: Context, val bmp: Bitmap) : View(ctx) {
         if (h != null) {
             stroke.color = Color.parseColor("#FFA726")
             for (p in pocketCentres) c.drawCircle(p[0], p[1], pocketPx, stroke)
+            stroke.color = Color.parseColor("#FF5252")
+            for (p in ignoredPts) {
+                val k = dp(9f) * u
+                c.drawLine(p[0] - k, p[1] - k, p[0] + k, p[1] + k, stroke)
+                c.drawLine(p[0] - k, p[1] + k, p[0] + k, p[1] - k, stroke)
+            }
             for (f in found) {
                 val x = h.mapX(f.x, f.y).toFloat(); val y = h.mapY(f.x, f.y).toFloat()
                 stroke.color = when (f.kind) {
@@ -179,9 +189,13 @@ class CalView(ctx: Context, val bmp: Bitmap) : View(ctx) {
     }
 
     override fun onTouchEvent(e: MotionEvent): Boolean {
-        if (mode == Mode.TEST) return true
         val bx = (e.x - ox) / s
         val by = (e.y - oy) / s
+        if (mode == Mode.TEST) {
+            if (e.actionMasked == MotionEvent.ACTION_DOWN) { downX = e.x; downY = e.y }
+            if (e.actionMasked == MotionEvent.ACTION_UP && hypot(e.x - downX, e.y - downY) < dp(12f)) onTap?.invoke(bx, by)
+            return true
+        }
         when (e.actionMasked) {
             MotionEvent.ACTION_DOWN -> { touching = true; onDown(bx, by, e.x, e.y) }
             MotionEvent.ACTION_MOVE -> onMove(bx, by)

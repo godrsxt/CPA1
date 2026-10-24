@@ -15,6 +15,11 @@ class BoardProfile(var name: String) {
     var strikerR = 0.0280f
     var pocketR = 0.0300f
     var pocketInset = 0.0330f
+    /** Pocket centres in board units (TL, TR, BR, BL). Marked one by one during calibration. */
+    var pocketX = FloatArray(4)
+    var pocketY = FloatArray(4)
+    /** Printed circles that look like coins, as triples (x, y, 0xRRGGBB of the middle). Board units. */
+    var ignore = FloatArray(0)
     /** A coin drops when its centre comes within pocketR * pocketCapture of the pocket centre. */
     var pocketCapture = 1.00f
 
@@ -35,6 +40,13 @@ class BoardProfile(var name: String) {
     /** Pull-back distance (board units) that gives full power in the game. */
     var maxDrag = 0.20f
 
+    init { resetPockets() }
+
+    fun resetPockets() {
+        pocketX = floatArrayOf(pocketInset, 1 - pocketInset, 1 - pocketInset, pocketInset)
+        pocketY = floatArrayOf(pocketInset, pocketInset, 1 - pocketInset, 1 - pocketInset)
+    }
+
     val calibrated: Boolean get() = corners.size == 8
 
     fun copyAs(newName: String): BoardProfile {
@@ -43,6 +55,7 @@ class BoardProfile(var name: String) {
         p.coinR = coinR; p.strikerR = strikerR; p.pocketR = pocketR; p.pocketInset = pocketInset
         p.pocketCapture = pocketCapture; p.baselineY = baselineY; p.slideMin = slideMin; p.slideMax = slideMax
         p.colors = colors.copyOf(); p.tol = tol
+        p.pocketX = pocketX.copyOf(); p.pocketY = pocketY.copyOf(); p.ignore = ignore.copyOf()
         p.wallRest = wallRest; p.coinRest = coinRest; p.strikerMass = strikerMass
         p.rollLen = rollLen; p.power = power; p.maxDrag = maxDrag
         return p
@@ -58,9 +71,8 @@ class BoardProfile(var name: String) {
     }
 
     fun phys(): PhysParams {
-        val inset = pocketInset.toDouble()
-        val cx = doubleArrayOf(inset, 1 - inset, 1 - inset, inset)
-        val cy = doubleArrayOf(inset, inset, 1 - inset, 1 - inset)
+        val cx = DoubleArray(4) { pocketX[it].toDouble() }
+        val cy = DoubleArray(4) { pocketY[it].toDouble() }
         val l = rollLen.toDouble()
         return PhysParams(
             wallRest = wallRest.toDouble(), coinRest = coinRest.toDouble(),
